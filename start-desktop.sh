@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 VNC_PORT=${VNC_PORT:-5901}
 NOVNC_PORT=${NOVNC_PORT:-6080}
@@ -56,7 +55,7 @@ if ! pgrep -x gnome-shell > /dev/null 2>&1; then
     cat /tmp/gnome-session.log 2>/dev/null || true
 fi
 
-# Start x11vnc
+# Start x11vnc with clipboard support
 echo "[desktop] Starting x11vnc on :${VNC_PORT}"
 x11vnc -display :1 \
     -rfbport ${VNC_PORT} \
@@ -64,6 +63,7 @@ x11vnc -display :1 \
     -forever \
     -shared \
     -noxdamage \
+    -xkb \
     -bg \
     -o /var/log/x11vnc.log
 

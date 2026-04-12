@@ -1,5 +1,9 @@
 FROM jockerdragon/docker-systemd:ubuntu-24.04
 
+# 换用阿里云镜像源加速下载
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu|https://mirrors.aliyun.com/ubuntu|g' /etc/apt/sources.list && \
+    sed -i 's|http://security.ubuntu.com/ubuntu|https://mirrors.aliyun.com/ubuntu|g' /etc/apt/sources.list
+
 ENV DEBIAN_FRONTEND=noninteractive \
     VNC_PORT=5901 \
     NOVNC_PORT=6080 \
@@ -7,6 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     VNC_DEPTH=24 \
     VNC_PASSWORD=password
 
+# Install ubuntu-desktop then remove unwanted packages
 RUN apt-get update && apt-get install -y \
     ubuntu-desktop \
     xvfb \
@@ -16,6 +21,46 @@ RUN apt-get update && apt-get install -y \
     python3 \
     sudo \
     net-tools \
+    curl \
+    git \
+    vim \
+    firefox \
+    xdotool \
+    xclip \
+    && apt-get remove -y --purge \
+        libreoffice* \
+        thunderbird \
+        rhythmbox \
+        totem \
+        shotwell \
+        transmission-gtk \
+        remmina \
+        gnome-games \
+        aisleriot \
+        gnome-mahjongg \
+        gnome-mines \
+        gnome-sudoku \
+        cheese \
+        simple-scan \
+        gnome-calendar \
+        gnome-clocks \
+        gnome-weather \
+        gnome-maps \
+        gnome-contacts \
+        gnome-music \
+        gnome-photos \
+        deja-dup \
+        brltty \
+        orca \
+        hplip \
+        printer-driver-* \
+        foomatic-db* \
+        openprinting-ppds \
+        cups-browsed \
+        sane-utils \
+        usb-creator-gtk \
+        usb-modeswitch \
+    && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -28,7 +73,6 @@ RUN useradd -m -s /bin/bash vnc && \
 # noVNC index
 RUN ln -sf /usr/share/novnc/vnc.html /usr/share/novnc/index.html
 
-# Setup script as a systemd service so it runs after dbus/systemd is ready
 COPY start-desktop.sh /usr/local/bin/start-desktop.sh
 RUN chmod +x /usr/local/bin/start-desktop.sh
 
@@ -38,5 +82,4 @@ RUN printf '[Unit]\nDescription=VNC+noVNC Desktop Service\nAfter=multi-user.targ
 
 EXPOSE ${VNC_PORT} ${NOVNC_PORT}
 
-# systemd as PID 1 (required by base image)
 CMD ["/sbin/init"]
