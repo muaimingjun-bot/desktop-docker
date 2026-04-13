@@ -51,6 +51,13 @@ su - vnc -s /bin/bash -c "
     export DBUS_SESSION_BUS_ADDRESS=unix:path=${DBUS_SOCKET}
     export XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg
     export XDG_DATA_DIRS=/usr/share/ubuntu:/usr/share/gnome:/usr/local/share:/usr/share
+    export LANG=zh_CN.UTF-8
+    export LANGUAGE=zh_CN:zh
+    export LC_ALL=zh_CN.UTF-8
+    export GTK_IM_MODULE=ibus
+    export QT_IM_MODULE=ibus
+    export XMODIFIERS=@im=ibus
+    ibus-daemon -drx &
     gnome-session --session=ubuntu >> /tmp/gnome-session.log 2>&1 &
     disown
 " &
@@ -101,9 +108,11 @@ x11vnc -display :1 \
     -bg \
     -o /var/log/x11vnc.log
 
-# Start noVNC
-echo "[desktop] Starting noVNC on :${NOVNC_PORT}"
+# Start noVNC (HTTPS for clipboard API support)
+echo "[desktop] Starting noVNC on :${NOVNC_PORT} (HTTPS)"
 exec websockify --web=/usr/share/novnc \
     --wrap-mode=ignore \
+    --cert=/etc/novnc-cert.pem \
+    --key=/etc/novnc-key.pem \
     ${NOVNC_PORT} \
     localhost:${VNC_PORT}
