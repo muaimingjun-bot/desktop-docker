@@ -13,7 +13,7 @@
 
 ```bash
 # 构建
-docker build -t gnome-novnc .
+docker build -t muaimingjunbot/ubuntu-gnome-vnc:2404 .
 
 # 运行
 docker run -d \
@@ -22,7 +22,7 @@ docker run -d \
   -p 6080:6080 \
   -p 5901:5901 \
   -e VNC_PASSWORD=yourpassword \
-  gnome-novnc
+  muaimingjunbot/ubuntu-gnome-vnc:2404
 ```
 
 浏览器打开 `http://localhost:6080`，输入密码即可。
