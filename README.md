@@ -5,9 +5,12 @@
 ## 特性
 
 - 完整 Ubuntu GNOME 桌面（ubuntu-desktop）
-- 浏览器访问（noVNC，端口 6080）
+- 浏览器访问（noVNC HTTPS，端口 6080）
 - VNC 直连（端口 5901）
 - systemd 作为 PID 1，保证 GNOME session 正常运行
+- 中文界面 + 拼音输入法（ibus-pinyin）
+- 时区 Asia/Shanghai
+- 剪贴板双向同步（需 HTTPS 访问）
 
 ## 快速开始
 
@@ -25,7 +28,7 @@ docker run -d \
   muaimingjunbot/ubuntu-gnome-vnc:2404
 ```
 
-浏览器打开 `http://localhost:6080`，输入密码即可。
+浏览器打开 `https://localhost:6080`，提示证书不受信任时点"高级"→"继续访问"，输入密码即可。
 
 ## 环境变量
 
@@ -41,3 +44,5 @@ docker run -d \
 
 - 必须使用 `--privileged` 运行，systemd 需要此权限
 - 首次启动 GNOME 需要约 10-15 秒
+- noVNC 使用自签名证书，浏览器会提示不安全，忽略即可
+- 剪贴板共享需通过 `https://` 访问，`http://` 不支持

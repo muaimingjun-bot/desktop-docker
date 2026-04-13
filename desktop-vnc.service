@@ -1,0 +1,14 @@
+[Unit]
+Description=VNC+noVNC Desktop Service
+After=multi-user.target dbus.service
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/desktop-env
+ExecStartPre=/bin/bash -c "cat /proc/1/environ | tr '\\0' '\\n' | grep -E '^(VNC_|NOVNC_)' > /etc/desktop-env"
+ExecStart=/usr/local/bin/start-desktop.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
