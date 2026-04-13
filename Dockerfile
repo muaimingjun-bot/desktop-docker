@@ -1,9 +1,5 @@
 FROM jockerdragon/docker-systemd:ubuntu-24.04
 
-# 换用阿里云镜像源加速下载
-RUN sed -i 's|http://archive.ubuntu.com/ubuntu|https://mirrors.aliyun.com/ubuntu|g' /etc/apt/sources.list && \
-    sed -i 's|http://security.ubuntu.com/ubuntu|https://mirrors.aliyun.com/ubuntu|g' /etc/apt/sources.list
-
 ENV DEBIAN_FRONTEND=noninteractive \
     VNC_PORT=5901 \
     NOVNC_PORT=6080 \
@@ -72,6 +68,13 @@ RUN useradd -m -s /bin/bash vnc && \
 
 # noVNC index
 RUN ln -sf /usr/share/novnc/vnc.html /usr/share/novnc/index.html
+
+# Disable GNOME screensaver/lock/power via dconf system-wide defaults
+RUN mkdir -p /etc/dconf/db/local.d /etc/dconf/profile && \
+    printf '[org/gnome/desktop/screensaver]\nlock-enabled=false\nidle-activation-enabled=false\n\n[org/gnome/desktop/session]\nidle-delay=uint32 0\n\n[org/gnome/settings-daemon/plugins/power]\nsleep-inactive-ac-type='"'"'nothing'"'"'\nsleep-inactive-battery-type='"'"'nothing'"'"'\nidle-dim=false\npower-button-action='"'"'nothing'"'"'\n' \
+        > /etc/dconf/db/local.d/00-nodim && \
+    printf 'user-db:user\nsystem-db:local\n' > /etc/dconf/profile/user && \
+    dconf update 2>/dev/null || true
 
 COPY start-desktop.sh /usr/local/bin/start-desktop.sh
 RUN chmod +x /usr/local/bin/start-desktop.sh

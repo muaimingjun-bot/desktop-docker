@@ -26,7 +26,21 @@ mkdir -p /run/user/${VNC_UID}
 chmod 700 /run/user/${VNC_UID}
 chown vnc:vnc /run/user/${VNC_UID}
 
-# Start full Ubuntu GNOME session via dbus-run-session
+DBUS_SOCKET="/run/user/${VNC_UID}/bus"
+
+# Start a persistent D-Bus session daemon for the vnc user (non-blocking)
+echo "[desktop] Starting persistent D-Bus session daemon"
+rm -f "${DBUS_SOCKET}"
+su - vnc -s /bin/bash -c "
+    export XDG_RUNTIME_DIR=/run/user/${VNC_UID}
+    dbus-daemon --session --address=unix:path=${DBUS_SOCKET} --nofork &
+    disown
+" &
+sleep 2
+
+echo "[desktop] D-Bus socket: ${DBUS_SOCKET}"
+
+# Start full Ubuntu GNOME session
 echo "[desktop] Starting Ubuntu GNOME session"
 su - vnc -s /bin/bash -c "
     export DISPLAY=:1
@@ -34,9 +48,11 @@ su - vnc -s /bin/bash -c "
     export XDG_CURRENT_DESKTOP=ubuntu:GNOME
     export GNOME_SHELL_SESSION_MODE=ubuntu
     export XDG_RUNTIME_DIR=/run/user/${VNC_UID}
+    export DBUS_SESSION_BUS_ADDRESS=unix:path=${DBUS_SOCKET}
     export XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg
     export XDG_DATA_DIRS=/usr/share/ubuntu:/usr/share/gnome:/usr/local/share:/usr/share
-    dbus-run-session -- gnome-session --session=ubuntu 2>/tmp/gnome-session.log &
+    gnome-session --session=ubuntu >> /tmp/gnome-session.log 2>&1 &
+    disown
 " &
 
 # Wait for gnome-shell
@@ -44,7 +60,6 @@ echo "[desktop] Waiting for gnome-shell..."
 for i in $(seq 1 60); do
     if pgrep -x gnome-shell > /dev/null 2>&1; then
         echo "[desktop] gnome-shell running (${i}s)"
-        sleep 5
         break
     fi
     sleep 1
@@ -55,7 +70,26 @@ if ! pgrep -x gnome-shell > /dev/null 2>&1; then
     cat /tmp/gnome-session.log 2>/dev/null || true
 fi
 
-# Start x11vnc with clipboard support
+# Disable all GNOME power/lock/idle settings to prevent auto-logout
+echo "[desktop] Disabling GNOME idle/lock/power settings"
+sleep 3
+su - vnc -s /bin/bash -c "
+    export DISPLAY=:1
+    export DBUS_SESSION_BUS_ADDRESS=unix:path=${DBUS_SOCKET}
+    export XDG_RUNTIME_DIR=/run/user/${VNC_UID}
+
+    gsettings set org.gnome.desktop.screensaver lock-enabled false
+    gsettings set org.gnome.desktop.screensaver idle-activation-enabled false
+    gsettings set org.gnome.desktop.session idle-delay 0
+    gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'
+    gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'nothing'
+    gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
+    gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'nothing'
+
+    echo '[desktop] GNOME power/lock settings disabled'
+" >> /tmp/gsettings.log 2>&1 || true
+
+# Start x11vnc
 echo "[desktop] Starting x11vnc on :${VNC_PORT}"
 x11vnc -display :1 \
     -rfbport ${VNC_PORT} \
