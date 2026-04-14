@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     sudo \
     net-tools \
     curl \
+    wget \
     git \
     vim \
     firefox \
@@ -46,7 +47,6 @@ RUN apt-get update && apt-get install -y \
         gnome-mahjongg \
         gnome-mines \
         gnome-sudoku \
-        cheese \
         simple-scan \
         gnome-calendar \
         gnome-clocks \
@@ -54,7 +54,6 @@ RUN apt-get update && apt-get install -y \
         gnome-maps \
         gnome-contacts \
         gnome-music \
-        gnome-photos \
         deja-dup \
         brltty \
         orca \
