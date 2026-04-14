@@ -20,6 +20,9 @@ echo "[desktop] Starting Xvfb :1 (${VNC_RESOLUTION}x${VNC_DEPTH})"
 Xvfb :1 -screen 0 ${VNC_RESOLUTION}x${VNC_DEPTH} &
 sleep 2
 
+# Set keyboard repeat rate (delay 200ms, repeat 30/s)
+DISPLAY=:1 xset r rate 200 30
+
 # Setup XDG_RUNTIME_DIR for vnc user
 VNC_UID=$(id -u vnc)
 mkdir -p /run/user/${VNC_UID}
