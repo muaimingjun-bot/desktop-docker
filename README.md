@@ -22,6 +22,7 @@ docker build -t muaimingjunbot/ubuntu-gnome-vnc:2404 .
 docker run -d \
   --privileged \
   --name gnome-desktop \
+  --shm-size=2g \
   -p 6080:6080 \
   -p 5901:5901 \
   -e VNC_PASSWORD=yourpassword \
