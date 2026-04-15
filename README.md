@@ -1,10 +1,11 @@
-# GNOME Desktop in Docker via noVNC
+# Ubuntu GNOME Desktop in Docker via noVNC
 
 基于 [jockerdragon/docker-systemd](https://hub.docker.com/r/jockerdragon/docker-systemd) 的完整 Ubuntu GNOME 桌面容器，通过 noVNC 在浏览器中访问。
 
 ## 特性
 
 - 完整 Ubuntu GNOME 桌面（ubuntu-desktop）
+- 支持 Ubuntu 20.04 / 24.04 / 26.04
 - 浏览器访问（noVNC HTTPS，端口 6080）
 - VNC 直连（端口 5901）
 - systemd 作为 PID 1，保证 GNOME session 正常运行
@@ -12,15 +13,24 @@
 - 时区 Asia/Shanghai
 - 剪贴板双向同步（需 HTTPS 访问）
 
+## 目录结构
+
+```
+ubuntu-gnome/        # Ubuntu GNOME 桌面镜像源码
+  ├── Dockerfile
+  ├── start-desktop.sh
+  └── desktop-vnc.service
+```
+
 ## 快速开始
 
 ```bash
 # 构建（默认 Ubuntu 24.04）
-docker build -t muaimingjunbot/ubuntu-gnome-vnc:2404 .
+docker build -t muaimingjunbot/ubuntu-gnome-vnc:2404 ./ubuntu-gnome
 
-# 构建指定版本（支持 20.04 / 24.04 / 26.04）
-docker build --build-arg UBUNTU_VERSION=20.04 -t muaimingjunbot/ubuntu-gnome-vnc:2004 .
-docker build --build-arg UBUNTU_VERSION=26.04 -t muaimingjunbot/ubuntu-gnome-vnc:2604 .
+# 构建指定版本
+docker build --build-arg UBUNTU_VERSION=20.04 -t muaimingjunbot/ubuntu-gnome-vnc:2004 ./ubuntu-gnome
+docker build --build-arg UBUNTU_VERSION=26.04 -t muaimingjunbot/ubuntu-gnome-vnc:2604 ./ubuntu-gnome
 
 # 运行
 docker run -d \
@@ -51,3 +61,4 @@ docker run -d \
 - 首次启动 GNOME 需要约 10-15 秒
 - noVNC 使用自签名证书，浏览器会提示不安全，忽略即可
 - 剪贴板共享需通过 `https://` 访问，`http://` 不支持
+- 推荐加 `--shm-size=2g`，防止浏览器崩溃

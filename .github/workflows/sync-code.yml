@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - dev
+    paths:
+      - ".github/workflows/**"
+      - "ubuntu-gnome/**"
   workflow_dispatch:
 
 concurrency:
@@ -56,4 +59,4 @@ jobs:
             --cache-from=type=gha,scope=${{ matrix.tag }} \
             --cache-to=type=gha,mode=max,scope=${{ matrix.tag }} \
             -t "$IMAGE" \
-            --push .
+            --push ./ubuntu-gnome
