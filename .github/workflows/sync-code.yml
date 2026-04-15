@@ -7,15 +7,25 @@ on:
       - dev
   workflow_dispatch:
 
-# 🚦 防止重复运行同一分支的任务
 concurrency:
   group: publish-docker-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   publish-docker:
-    name: "🐳 Build & Push Docker Image"
+    name: "🐳 Build Ubuntu ${{ matrix.ubuntu_version }}"
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ubuntu_version: "20.04"
+            tag: "2004"
+          - ubuntu_version: "24.04"
+            tag: "2404"
+          - ubuntu_version: "26.04"
+            tag: "2604"
 
     steps:
       - name: "📂 拉取源码"
@@ -35,14 +45,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: "📤 构建并推送 Docker 镜像"
+      - name: "📤 构建并推送 Docker 镜像 (${{ matrix.tag }})"
         run: |
           USERNAME=$(echo "${{ secrets.DOCKERHUB_USERNAME }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE="${USERNAME}/ubuntu-gnome-vnc:2404"
-          echo "🚀 正在构建并推送镜像: $IMAGE"
+          IMAGE="${USERNAME}/ubuntu-gnome-vnc:${{ matrix.tag }}"
+          echo "🚀 正在构建并推送镜像: $IMAGE (Ubuntu ${{ matrix.ubuntu_version }})"
           docker buildx build \
             --platform linux/amd64 \
-            --cache-from=type=gha \
-            --cache-to=type=gha,mode=max \
+            --build-arg UBUNTU_VERSION=${{ matrix.ubuntu_version }} \
+            --cache-from=type=gha,scope=${{ matrix.tag }} \
+            --cache-to=type=gha,mode=max,scope=${{ matrix.tag }} \
             -t "$IMAGE" \
             --push .

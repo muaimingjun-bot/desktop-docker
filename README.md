@@ -15,8 +15,12 @@
 ## 快速开始
 
 ```bash
-# 构建
+# 构建（默认 Ubuntu 24.04）
 docker build -t muaimingjunbot/ubuntu-gnome-vnc:2404 .
+
+# 构建指定版本（支持 20.04 / 24.04 / 26.04）
+docker build --build-arg UBUNTU_VERSION=20.04 -t muaimingjunbot/ubuntu-gnome-vnc:2004 .
+docker build --build-arg UBUNTU_VERSION=26.04 -t muaimingjunbot/ubuntu-gnome-vnc:2604 .
 
 # 运行
 docker run -d \

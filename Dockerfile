@@ -1,4 +1,5 @@
-FROM jockerdragon/docker-systemd:ubuntu-24.04
+ARG UBUNTU_VERSION=24.04
+FROM jockerdragon/docker-systemd:ubuntu-${UBUNTU_VERSION}
 
 ENV DEBIAN_FRONTEND=noninteractive \
     VNC_PORT=5901 \
