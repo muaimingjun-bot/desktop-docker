@@ -2,6 +2,14 @@
 
 基于 [jockerdragon/docker-systemd](https://hub.docker.com/r/jockerdragon/docker-systemd) 的完整 Ubuntu GNOME 桌面容器，通过 noVNC 在浏览器中访问。
 
+## 预览
+
+![预览1](images/image.png)
+
+![预览2](images/image_copy.png)
+
+![预览3](images/image_copy_3.png)
+
 ## 特性
 
 - 完整 Ubuntu GNOME 桌面（ubuntu-desktop）
@@ -12,14 +20,6 @@
 - 中文界面 + 拼音输入法（ibus-pinyin）
 - 时区 Asia/Shanghai
 - 剪贴板双向同步（需 HTTPS 访问）
-
-## 预览
-
-![桌面预览](images/image.png)
-
-![运行效果](images/image%20copy.png)
-
-
 
 ## 目录结构
 
@@ -49,6 +49,17 @@ docker run -d \
   -p 5901:5901 \
   -e VNC_PASSWORD=yourpassword \
   muaimingjunbot/ubuntu-gnome-vnc:2404
+
+# 启用 GPU（需要宿主机安装 nvidia-container-toolkit）
+docker run -d \
+  --privileged \
+  --gpus all \
+  --name gnome-desktop \
+  --shm-size=2g \
+  -p 6080:6080 \
+  -p 5901:5901 \
+  -e VNC_PASSWORD=yourpassword \
+  muaimingjunbot/ubuntu-gnome-vnc:2404
 ```
 
 浏览器打开 `https://localhost:6080`，提示证书不受信任时点"高级"→"继续访问"，输入密码即可。
@@ -62,6 +73,21 @@ docker run -d \
 | `VNC_DEPTH` | `24` | 色深 |
 | `VNC_PORT` | `5901` | VNC 端口 |
 | `NOVNC_PORT` | `6080` | noVNC 端口 |
+
+## GPU 支持
+
+需要宿主机安装 [nvidia-container-toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)，然后在 `docker run` 加上 `--gpus` 参数：
+
+```bash
+# 启用所有 GPU
+--gpus all
+
+# 指定单个 GPU
+--gpus device=0
+
+# 指定多个 GPU
+--gpus '"device=0,1"'
+```
 
 ## 注意事项
 
