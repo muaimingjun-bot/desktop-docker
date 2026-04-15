@@ -36,9 +36,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: "🛠️ 设置 QEMU (支持多平台构建)"
-        uses: docker/setup-qemu-action@v3
-
       - name: "🏗️ 设置 Docker Buildx"
         uses: docker/setup-buildx-action@v3
 
@@ -49,14 +46,12 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: "📤 构建并推送 Docker 镜像 (${{ matrix.tag }})"
-        run: |
-          USERNAME=$(echo "${{ secrets.DOCKERHUB_USERNAME }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE="${USERNAME}/ubuntu-gnome-vnc:${{ matrix.tag }}"
-          echo "🚀 正在构建并推送镜像: $IMAGE (Ubuntu ${{ matrix.ubuntu_version }})"
-          docker buildx build \
-            --platform linux/amd64 \
-            --build-arg UBUNTU_VERSION=${{ matrix.ubuntu_version }} \
-            --cache-from=type=gha,scope=${{ matrix.tag }} \
-            --cache-to=type=gha,mode=max,scope=${{ matrix.tag }} \
-            -t "$IMAGE" \
-            --push ./ubuntu-gnome
+        uses: docker/build-push-action@v6
+        with:
+          context: ./ubuntu-gnome
+          platforms: linux/amd64
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ubuntu-gnome-vnc:${{ matrix.tag }}
+          build-args: UBUNTU_VERSION=${{ matrix.ubuntu_version }}
+          cache-from: type=gha,scope=${{ matrix.tag }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.tag }}
