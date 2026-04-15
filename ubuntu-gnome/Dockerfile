@@ -25,9 +25,6 @@ RUN apt-get update && apt-get install -y \
     x11vnc \
     novnc \
     websockify \
-    python3 \
-    sudo \
-    net-tools \
     curl \
     wget \
     git \
@@ -90,8 +87,10 @@ RUN ln -sf /usr/share/novnc/vnc.html /usr/share/novnc/index.html && \
         -out /etc/novnc-cert.pem \
         -subj "/CN=novnc"
 
-# install chrome 
-RUN  wget  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && sudo apt install -y ./google-chrome-stable_current_amd64.deb && rm ./google-chrome-stable_current_amd64.deb
+# install chrome
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt install -y ./google-chrome-stable_current_amd64.deb && \
+    rm ./google-chrome-stable_current_amd64.deb
 
 # Disable GNOME screensaver/lock/power via dconf system-wide defaults
 RUN mkdir -p /etc/dconf/db/local.d /etc/dconf/profile && \

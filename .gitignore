@@ -3,7 +3,7 @@
 
 # Logs
 *.log
-
+CLAUDE.md
 # OS
 .DS_Store
 Thumbs.db
