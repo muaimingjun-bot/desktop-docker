@@ -13,6 +13,14 @@
 - 时区 Asia/Shanghai
 - 剪贴板双向同步（需 HTTPS 访问）
 
+## 预览
+
+![桌面预览](images/image.png)
+
+![运行效果](images/image%20copy.png)
+
+
+
 ## 目录结构
 
 ```
